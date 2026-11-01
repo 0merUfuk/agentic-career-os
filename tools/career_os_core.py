@@ -80,6 +80,115 @@ def sanitize_filename(name: str) -> str:
 
 
 # -----------------------------------------------------------------------------
+# Scorecard & Visual Card Formatters (Agentic UX)
+# -----------------------------------------------------------------------------
+
+def format_evaluation_card(eval_data: Dict[str, Any]) -> str:
+    """Format job posting evaluation as a scannable Markdown Scorecard."""
+    fit_score = eval_data.get("fit_score", 0)
+    if fit_score >= 80:
+        fit_badge = f"🟢 **{fit_score}/100** (Strong Fit)"
+    elif fit_score >= 60:
+        fit_badge = f"🟡 **{fit_score}/100** (Moderate Fit)"
+    else:
+        fit_badge = f"🔴 **{fit_score}/100** (Review Gaps)"
+
+    loc_status = eval_data.get("location_status", "")
+    if loc_status == "VERIFIED_LOCATION":
+        loc_badge = "🟢 Verified Remote/Location"
+    elif "FLAG" in loc_status:
+        loc_badge = "🟡 FLAG (⚠ Location/Contract Check)"
+    else:
+        loc_badge = "⚪ Unspecified Location"
+
+    is_safe = eval_data.get("is_safe", True)
+    sec_badge = "🛡️ Clean (0 injection / tracking threats)" if is_safe else "⚠️ Security Warnings Found"
+
+    company = eval_data.get("estimated_company") or "Target Company"
+    role = eval_data.get("estimated_role") or "Target Role"
+    track = eval_data.get("target_track", "AI Systems")
+    rec = eval_data.get("recommendation", "PROCEED_TO_DRAFT")
+
+    matched_strengths = eval_data.get("matched_strengths", [])
+    strengths_md = "\n".join(f"- {s}" for s in matched_strengths) if matched_strengths else "- General software engineering alignment"
+
+    card = f"""### 📋 Job Audit & Fit Scorecard: {company} — {role}
+
+| Metric | Status | Details |
+| :--- | :---: | :--- |
+| **Profile Fit** | {fit_badge} | Target Track: `{track}` |
+| **Work Authorization** | {loc_badge} | {eval_data.get('location_notes', '')} |
+| **Security Audit** | {sec_badge} | Verdict: `{eval_data.get('verdict', 'SAFE')}` |
+| **Recommendation** | **{rec}** | Next: Draft package or review requirements |
+
+#### Key Matched Strengths:
+{strengths_md}
+"""
+    return card
+
+
+def format_package_card(draft_data: Dict[str, Any]) -> str:
+    """Format drafted package deliverables and next action checklist."""
+    company = draft_data.get("company", "Company")
+    role = draft_data.get("role", "Role")
+    pkg_dir = draft_data.get("package_directory", "")
+    cv_ver = draft_data.get("cv_verification", {})
+    cl_ver = draft_data.get("cover_letter_verification", {})
+
+    cv_status = "🟢 Exactly 2 Pages (Verified)" if cv_ver.get("verified") else f"⚪ {cv_ver.get('message', 'Layout check')}"
+    cl_status = "🟢 Exactly 1 Page (Verified)" if cl_ver.get("verified") else f"⚪ {cl_ver.get('message', '1-Page generated')}"
+
+    card = f"""### 📦 Application Package Ready: {company} — {role}
+
+**Directory:** `{pkg_dir}`
+
+| Asset | Deliverable | ATS Compliance |
+| :--- | :--- | :---: |
+| **Tailored CV** | `cv.pdf` | {cv_status} |
+| **Cover Letter** | `cover-letter.pdf` / `.html` | {cl_status} |
+| **Job Posting** | `job-posting.md` | 🛡️ Sanitized Snapshot |
+| **Interview Notes** | `notes.md` | 📝 Battle Cards & STAR Points |
+
+---
+#### 🚀 Next Action: Manual Application Submission
+1. Review `cover-letter.html` and `cv.pdf` in the package folder.
+2. Submit your application manually on {company}'s careers portal.
+3. **After you submit**, confirm with:
+   > `/career:log "{company}" "{role}"`
+   *(or say: "I submitted {company}")*
+"""
+    return card
+
+
+def format_status_card(status_data: Dict[str, Any]) -> str:
+    """Format pipeline metrics and active stages into a visual card."""
+    total = status_data.get("total_tracker_rows", 0)
+    status_counts = status_data.get("status_counts", {})
+    draft_packages = status_data.get("application_packages", [])
+
+    status_lines = []
+    for st, count in sorted(status_counts.items(), key=lambda x: -x[1]):
+        status_lines.append(f"| **{st.capitalize()}** | {count} |")
+    status_table = "\n".join(status_lines) if status_lines else "| **No applications logged yet** | 0 |"
+
+    card = f"""### 📊 Career OS Pipeline & Tracker Status
+
+**Total Tracked Applications:** **{total}**
+
+| Pipeline Stage | Active Count |
+| :--- | :---: |
+{status_table}
+
+**Application Packages on Disk:** **{len(draft_packages)}**
+"""
+    if draft_packages:
+        pkg_names = [p.get("package_name") for p in draft_packages[:5] if isinstance(p, dict)]
+        card += "\n" + "\n".join(f"- `{name}`" for name in pkg_names)
+    return card
+
+
+
+# -----------------------------------------------------------------------------
 # 1. Status & Workspace Health
 # -----------------------------------------------------------------------------
 
@@ -119,7 +228,7 @@ def get_status(root: Optional[Path] = None) -> Dict[str, Any]:
         for f in sorted(SAMPLE_CV_DIR.glob("*.pdf")):
             available_cvs.append(f.name)
 
-    return {
+    result = {
         "workspace_root": str(repo),
         "tracker_file": str(tracker_file),
         "tracker_exists": tracker_file.exists(),
@@ -135,6 +244,8 @@ def get_status(root: Optional[Path] = None) -> Dict[str, Any]:
         },
         "submission_invariant": "Applications must be submitted manually by user; tracker is updated only after confirmed outcome.",
     }
+    result["markdown_card"] = format_status_card(result)
+    return result
 
 
 # -----------------------------------------------------------------------------
@@ -276,7 +387,7 @@ def evaluate_posting(
 
     recommendation = "PROCEED_TO_DRAFT" if fit_score >= 70 and location_status != "FLAG_UNVERIFIED_LOCATION" else "REVIEW_REQUIRED"
 
-    return {
+    result = {
         "verdict": verdict,
         "is_safe": "suspicious" not in verdict.lower(),
         "security_findings": guard_findings,
@@ -292,6 +403,8 @@ def evaluate_posting(
         "recommendation": recommendation,
         "cleaned_posting_excerpt": cleaned_text[:1200] + ("..." if len(cleaned_text) > 1200 else ""),
     }
+    result["markdown_card"] = format_evaluation_card(result)
+    return result
 
 
 # -----------------------------------------------------------------------------
@@ -469,7 +582,7 @@ p {{
     tracker_mtime_after = tracker_path.stat().st_mtime if tracker_path.exists() else None
     assert tracker_mtime_before == tracker_mtime_after, "Fatal: job_search_tracker.csv was modified during draft creation!"
 
-    return {
+    result = {
         "status": "DRAFT_READY",
         "company": company,
         "role": role,
@@ -492,6 +605,8 @@ p {{
         "tracker_updated": False,
         "message": "Application drafted successfully in documents/applications/. As required by Career OS safety invariants, this draft has NOT been added to job_search_tracker.csv. Submit manually on the employer portal and confirm submission via career_os_record_submission.",
     }
+    result["markdown_card"] = format_package_card(result)
+    return result
 
 
 # -----------------------------------------------------------------------------

@@ -25,6 +25,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import career_os_core
+import career_os_dashboard
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -32,21 +33,13 @@ def cmd_status(args: argparse.Namespace) -> int:
     if args.json:
         print(json.dumps(res, indent=2))
         return 0
-    print("=== Career OS Status ===")
-    print(f"Workspace Root: {res['workspace_root']}")
-    print(f"Tracker Rows: {res['total_tracker_rows']}")
-    print(f"Draft Packages: {res['total_application_packages']}")
-    for pkg in res["application_packages"]:
-        flags = []
-        if pkg["has_cv"]:
-            flags.append("CV")
-        if pkg["has_cover_letter"]:
-            flags.append("CoverLetter")
-        if pkg["has_outcome"]:
-            flags.append("Outcome")
-        print(f"  - {pkg['package_name']} [{', '.join(flags)}]")
-    print(f"Available Resume PDFs: {', '.join(res['authoritative_sources']['available_cv_pdfs'])}")
-    print(f"Submission Invariant: {res['submission_invariant']}")
+    if "markdown_card" in res:
+        print(res["markdown_card"])
+    else:
+        print("=== Career OS Status ===")
+        print(f"Workspace Root: {res['workspace_root']}")
+        print(f"Tracker Rows: {res['total_tracker_rows']}")
+        print(f"Draft Packages: {res['total_application_packages']}")
     return 0
 
 
@@ -58,20 +51,24 @@ def cmd_evaluate(args: argparse.Namespace) -> int:
         sys.stderr.write("Error: Either --text or --url must be provided.\n")
         return 1
 
+    if not args.json:
+        print("[1/4] 🌐 Reading posting content...")
+        print("[2/4] 🛡️ Running security audit & pixel sanitization...")
+        print("[3/4] 📊 Matching competencies against profile...")
+        print("[4/4] 🗺️ Evaluating location authorization...\n")
+
     res = career_os_core.evaluate_posting(text, target_track=args.track)
     if args.json:
         print(json.dumps(res, indent=2))
         return 0
 
-    print("=== Posting Evaluation ===")
-    print(f"Estimated Role: {res['estimated_role']} at {res['estimated_company']}")
-    print(f"Security Verdict: {res['verdict']}")
-    print(f"Fit Score: {res['fit_score']}/100 ({res['recommendation']})")
-    print(f"Location Status: {res['location_status']} — {res['location_notes']}")
-    print("Matched Strengths:")
-    for s in res["matched_strengths"]:
-        print(f"  ✓ {s}")
-    print(f"Keywords: {', '.join(res['matched_keywords'])}")
+    if "markdown_card" in res:
+        print(res["markdown_card"])
+    else:
+        print("=== Posting Evaluation ===")
+        print(f"Estimated Role: {res['estimated_role']} at {res['estimated_company']}")
+        print(f"Security Verdict: {res['verdict']}")
+        print(f"Fit Score: {res['fit_score']}/100 ({res['recommendation']})")
     return 0
 
 
@@ -89,6 +86,11 @@ def cmd_draft(args: argparse.Namespace) -> int:
         sys.stderr.write("Error: Posting text must be provided via --text or --file.\n")
         return 1
 
+    if not args.json:
+        print("[1/3] 📄 Rendering tailored 1-page cover letter...")
+        print("[2/3] 📑 Copying curated 2-page ATS resume...")
+        print("[3/3] 🔍 Verifying layout and page counts...\n")
+
     res = career_os_core.draft_application(
         company=args.company,
         role=args.role,
@@ -101,12 +103,25 @@ def cmd_draft(args: argparse.Namespace) -> int:
         print(json.dumps(res, indent=2))
         return 0
 
-    print("=== Draft Package Created ===")
-    print(f"Directory: {res['package_directory']}")
-    print(f"CV: {res['cv_verification']['message']}")
-    print(f"Cover Letter: {res['cover_letter_verification']['message']}")
-    print(f"Tracker Modified: {res['tracker_updated']} (Drafts remain isolated)")
-    print(f"\n{res['message']}")
+    if "markdown_card" in res:
+        print(res["markdown_card"])
+    else:
+        print("=== Draft Package Created ===")
+        print(f"Directory: {res['package_directory']}")
+        print(f"CV: {res['cv_verification']['message']}")
+        print(f"Cover Letter: {res['cover_letter_verification']['message']}")
+    return 0
+
+
+def cmd_dashboard(args: argparse.Namespace) -> int:
+    out_file = career_os_dashboard.generate_html_dashboard(output_path=args.out)
+    if args.json:
+        print(json.dumps({"status": "SUCCESS", "dashboard_html": str(out_file.resolve())}, indent=2))
+        return 0
+    print(f"✓ Dashboard generated: {out_file.resolve()}")
+    if args.open:
+        import webbrowser
+        webbrowser.open(f"file://{out_file.resolve()}")
     return 0
 
 
@@ -210,6 +225,12 @@ def main() -> int:
     p_sal.add_argument("--city", type=str, help="City filter")
     p_sal.add_argument("--json", action="store_true", help="Output JSON")
 
+    # dashboard
+    p_dash = subparsers.add_parser("dashboard", help="Generate offline HTML Kanban dashboard")
+    p_dash.add_argument("--out", type=Path, help="Custom output HTML path")
+    p_dash.add_argument("--open", action="store_true", help="Open in default browser")
+    p_dash.add_argument("--json", action="store_true", help="Output JSON")
+
     args = parser.parse_args()
 
     commands = {
@@ -219,6 +240,7 @@ def main() -> int:
         "record": cmd_record,
         "interview": cmd_interview,
         "salary": cmd_salary,
+        "dashboard": cmd_dashboard,
     }
 
     handler = commands.get(args.subcommand)
