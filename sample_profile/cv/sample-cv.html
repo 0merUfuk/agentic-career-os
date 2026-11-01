@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Alex Vance — Resume</title>
+<style>
+@page {
+  size: letter;
+  margin: 0.8in;
+}
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  line-height: 1.45;
+  color: #111;
+  margin: 0;
+  padding: 0;
+}
+h1 {
+  font-size: 18pt;
+  margin: 0 0 4px 0;
+  text-align: center;
+  color: #000;
+  letter-spacing: -0.5px;
+}
+.contact {
+  text-align: center;
+  font-size: 9pt;
+  color: #444;
+  margin-bottom: 12px;
+}
+.tagline {
+  text-align: center;
+  font-weight: bold;
+  font-size: 9.5pt;
+  color: #222;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
+}
+h2 {
+  font-size: 11pt;
+  text-transform: uppercase;
+  border-bottom: 1px solid #222;
+  margin: 14px 0 8px 0;
+  padding-bottom: 2px;
+  color: #000;
+  letter-spacing: 0.5px;
+}
+.job {
+  margin-bottom: 12px;
+}
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+.job-title {
+  display: flex;
+  justify-content: space-between;
+  font-style: italic;
+  font-size: 9.5pt;
+  margin-bottom: 4px;
+}
+ul {
+  margin: 0 0 6px 18px;
+  padding: 0;
+}
+li {
+  margin-bottom: 3px;
+}
+.page-break {
+  page-break-before: always;
+}
+</style>
+</head>
+<body>
+
+<h1>Alex Vance</h1>
+<div class="contact">
+  San Francisco, CA &bull; alex.vance@example.com &bull; +1 (555) 019-2834 &bull; linkedin.com/in/alex-vance-sample &bull; github.com/example-alex
+</div>
+<div class="tagline">
+  AI Systems &amp; Platform Engineer — Agentic Systems, Deterministic Policy Gates, Scalable Distributed Infrastructure
+</div>
+
+<h2>Experience</h2>
+
+<div class="job">
+  <div class="job-header">
+    <span>Synthetix Labs</span>
+    <span>San Francisco, CA</span>
+  </div>
+  <div class="job-title">
+    <span>Principal AI Infrastructure Engineer</span>
+    <span>2024 &ndash; Present</span>
+  </div>
+  <ul>
+    <li>Architected multi-agent orchestration platform across 25+ production workflows serving enterprise workloads with automated multi-provider failover.</li>
+    <li>Designed and implemented deterministic policy gates that validate model outputs before any external tool execution, ensuring fail-closed safety on uncertainty.</li>
+    <li>Engineered Space Copilot, an advisory LLM-judge service evaluating production AI responses; redesigned its scoring metrics and resolved prompt-injection vulnerabilities.</li>
+    <li>Built Mercury planner, turning natural language intent into codebase-grounded task trees bounded by strict verification gates before modifying central issue trackers.</li>
+    <li>Led technical partnership evaluations and infrastructure integrations across leading foundation model inference providers.</li>
+  </ul>
+</div>
+
+<div class="job">
+  <div class="job-header">
+    <span>CloudMatrix Systems</span>
+    <span>San Francisco, CA</span>
+  </div>
+  <div class="job-title">
+    <span>Senior Platform Engineer</span>
+    <span>2022 &ndash; 2024</span>
+  </div>
+  <ul>
+    <li>Extracted 4 Go microservices from a legacy monolith with per-endpoint rollback safety and zero service disruption.</li>
+    <li>Re-architected execution pipelines from synchronous HTTP blocking into an asynchronous queue-based job architecture with RabbitMQ and Redis, cutting latency from 60s to &lt;100ms.</li>
+    <li>Implemented automated payment and subscription infrastructure backed by 500+ unit and integration tests at 92%+ coverage behind a 5-stage CI/CD pipeline.</li>
+    <li>Designed declarative pipeline orchestration reducing developer overhead for deploying new generation workflows by over 70%.</li>
+    <li>Engineered multi-provider circuit breakers with priority-ordered fallback chains across external AI APIs.</li>
+  </ul>
+</div>
+
+<div class="job">
+  <div class="job-header">
+    <span>DataCore Networks</span>
+    <span>San Jose, CA</span>
+  </div>
+  <div class="job-title">
+    <span>Distributed Systems Engineer</span>
+    <span>2020 &ndash; 2022</span>
+  </div>
+  <ul>
+    <li>Designed high-throughput network data ingestion and telemetry pipelines processing millions of events daily.</li>
+    <li>Optimized PostgreSQL database schemas and implemented multi-tier caching with Redis for measurable latency reductions.</li>
+    <li>Maintained Docker-based infrastructure and automated testing pipelines for core platform microservices.</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<h2>Selected Open Source &amp; Research Projects</h2>
+
+<div class="job">
+  <div class="job-header">
+    <span>agent-gatekeeper &bull; github.com/example-alex/agent-gatekeeper</span>
+    <span>MIT License</span>
+  </div>
+  <div class="job-title">
+    <span>Author &amp; Maintainer</span>
+    <span>2024</span>
+  </div>
+  <ul>
+    <li>Designed an open-source AI agent autonomy governance architecture featuring hard kill switches, token budgets, and live prompt-injection defense.</li>
+    <li>Shipped end-to-end tooling across Go and TypeScript with widespread developer community adoption.</li>
+  </ul>
+</div>
+
+<div class="job">
+  <div class="job-header">
+    <span>heimdall-cli &bull; github.com/example-alex/heimdall-cli</span>
+    <span>MIT License</span>
+  </div>
+  <div class="job-title">
+    <span>Author &amp; Maintainer</span>
+    <span>2023</span>
+  </div>
+  <ul>
+    <li>Built a real-time meeting transcription and structured note synthesis CLI in Go with streaming LLM analysis.</li>
+  </ul>
+</div>
+
+<h2>Education</h2>
+
+<div class="job">
+  <div class="job-header">
+    <span>University of California, Berkeley</span>
+    <span>Berkeley, CA</span>
+  </div>
+  <div class="job-title">
+    <span>B.S. in Computer Science &bull; GPA: 3.8 / 4.0</span>
+    <span>2016 &ndash; 2020</span>
+  </div>
+</div>
+
+<h2>Technical Skills</h2>
+
+<ul>
+  <li><strong>Languages:</strong> Go, Python, TypeScript, Node.js, SQL, C++, Bash</li>
+  <li><strong>AI &amp; Agent Tooling:</strong> Model Context Protocol (MCP), Claude Code, OpenAI Function Calling, Agent Governance, RAG, Prompt Injection Guards</li>
+  <li><strong>Infrastructure &amp; Systems:</strong> Docker, Kubernetes, PostgreSQL, Redis, RabbitMQ, Microservices, CI/CD, Distributed Systems, Linux</li>
+  <li><strong>Practices:</strong> Fail-Closed Policy Design, Deterministic Testing, Architecture Decision Records (ADRs)</li>
+</ul>
+
+<h2>Core Design Thesis</h2>
+<p style="margin-top: 6px; font-style: italic; color: #333;">
+  &ldquo;AI proposes, deterministic code validates and gates, nothing with a real external effect happens without a hard policy check or human approval &mdash; fail closed on uncertainty, never fail open.&rdquo;
+</p>
+
+</body>
+</html>

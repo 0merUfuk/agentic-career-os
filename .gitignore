@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Private user data (if configured locally)
+job_search_tracker.csv
+job_search_tracker.tmp
+profile/
+private/
+
+# Applications created by the user (except sample)
+documents/applications/*
+!documents/applications/sample-ai-engineer/
+
+# Node
+node_modules/
+npm-debug.log*
