@@ -1,0 +1,37 @@
+{
+  "name": "agentic-career-os",
+  "version": "1.0.0",
+  "description": "Autonomous, local-first career intelligence engine & MCP tools for job evaluation, application drafting, and interview prep.",
+  "author": {
+    "name": "0merUfuk",
+    "url": "https://github.com/0merUfuk/agentic-career-os"
+  },
+  "keywords": ["career", "job-search", "mcp", "resume", "ats", "interview-prep"],
+  "commands": [
+    {
+      "name": "status",
+      "description": "Show Career OS tracker status and active pipeline metrics",
+      "prompt": ".claude/commands/career-status.md"
+    },
+    {
+      "name": "eval",
+      "description": "Audit and evaluate a job posting for fit, security, and work rights",
+      "prompt": ".claude/commands/career-eval.md"
+    },
+    {
+      "name": "draft",
+      "description": "Draft tailored 2-page CV and 1-page cover letter into isolated folder",
+      "prompt": ".claude/commands/career-draft.md"
+    },
+    {
+      "name": "log",
+      "description": "Record manual application submission with safety gate",
+      "prompt": ".claude/commands/career-log.md"
+    },
+    {
+      "name": "interview",
+      "description": "Prepare company interview battle cards and STAR stories",
+      "prompt": ".claude/commands/career-interview.md"
+    }
+  ]
+}

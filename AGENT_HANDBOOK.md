@@ -57,30 +57,52 @@ Career OS uses a unified, standards-compliant integration architecture:
 
 ## 3. Environment Configuration Guides
 
-### 3.1. Claude Code Setup
-Claude Code automatically discovers project-level MCP servers.
+### 3.1. 60-Second Automated Setup
+Run the interactive onboarding wizard:
+```bash
+python3 init.py
+```
+This initializes your personal profile templates and configures Claude Code, Claude Desktop, Cursor, and Google Antigravity.
 
-1. **Verify configuration file**:
-   Ensure `.mcp.json` exists in the repository root:
+### 3.2. Claude Code Setup (Natural Language & Slash Commands)
+Claude Code automatically discovers project-level MCP servers and plugin commands.
+
+1. **Direct Natural Language**:
+   Simply launch Claude Code in the repo:
+   ```bash
+   claude
+   ```
+   Type natural language queries (*"Check my status"*, *"Evaluate this job posting: https://..."*).
+
+2. **Slash Commands**:
+   You can also trigger explicit commands:
+   - `/career:status` — Inspect pipeline stages, pending drafts, and profile paths.
+   - `/career:eval <url_or_text>` — Audit and evaluate a job posting for fit and security.
+   - `/career:draft <company> <role>` — Draft tailored 2-page CV and 1-page cover letter.
+   - `/career:log <company> <role>` — Record a manual application submission with safety gate.
+   - `/career:interview <company>` — Generate company battle cards and STAR stories.
+
+---
+
+### 3.3. Claude Desktop (Connectors 🔌)
+Claude Desktop supports Career OS directly as an MCP tool connector:
+1. Ensure your `claude_desktop_config.json` contains:
    ```json
    {
      "mcpServers": {
        "career-os": {
          "command": "python3",
-         "args": ["tools/career_os_mcp.py"]
+         "args": ["/ABSOLUTE/PATH/TO/agentic-career-os/tools/career_os_mcp.py"]
        }
      }
    }
    ```
-2. **Launch Claude Code**:
-   ```bash
-   claude
-   ```
-   Simply type natural language prompts directly. Claude Code will invoke the MCP tools automatically.
+2. Restart Claude Desktop.
+3. In any chat window, click the **🔌 (Connectors / Tools)** icon to see the Career OS tools available.
 
 ---
 
-### 3.2. Google Antigravity Setup
+### 3.4. Google Antigravity Setup
 Add the server to your Antigravity configuration in `~/.gemini/config/mcp_config.json`:
 ```json
 {
