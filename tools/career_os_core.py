@@ -152,19 +152,55 @@ def evaluate_posting(
     is_url = raw_text.startswith("http://") or raw_text.startswith("https://")
     source_url = raw_text if is_url else ""
 
+    estimated_company = "Target Company"
+    estimated_role = "AI Systems Engineer"
+
     if is_url:
         try:
-            from tools import fetch_page
-            res = fetch_page.fetch_with_urllib(raw_text)
-            if res and isinstance(res, tuple):
-                body = res[0]
-            elif isinstance(res, str):
-                body = res
+            import tempfile
+            import os
+            try:
+                import fetch_page
+            except ImportError:
+                from tools import fetch_page
+
+            fd, tmp_name = tempfile.mkstemp(suffix=".html")
+            os.close(fd)
+            tmp_path = Path(tmp_name)
+            try:
+                fetch_page.fetch_with_urllib(raw_text, tmp_path)
+                body = tmp_path.read_text(encoding="utf-8", errors="replace")
+            finally:
+                if tmp_path.exists():
+                    tmp_path.unlink()
+
+            # Try extracting JSON-LD JobPosting metadata (Ashby, Greenhouse, Lever, etc.)
+            json_ld_matches = re.findall(r'<script[^>]*type=[\"\']application/ld\+json[\"\'][^>]*>(.*?)</script>', body, re.DOTALL | re.IGNORECASE)
+            extracted_from_ld = ""
+            for jld_str in json_ld_matches:
+                try:
+                    import json
+                    jdata = json.loads(jld_str.strip())
+                    if isinstance(jdata, dict) and jdata.get("@type") == "JobPosting":
+                        title = jdata.get("title", "")
+                        hiring_org = jdata.get("hiringOrganization", {})
+                        org_name = hiring_org.get("name", "") if isinstance(hiring_org, dict) else ""
+                        desc = jdata.get("description", "")
+                        if title:
+                            estimated_role = title
+                        if org_name:
+                            estimated_company = org_name
+                        extracted_from_ld = f"Role: {title}\nCompany: {org_name}\n\n{desc}"
+                        break
+                except Exception:
+                    pass
+
+            if extracted_from_ld:
+                raw_text = extracted_from_ld
             else:
-                body = raw_text
-            raw_text = body
+                raw_text = body
             mode = "html"
-        except Exception:
+        except Exception as e:
             mode = "text"
     else:
         if posting_guard is not None and getattr(posting_guard, "HTML_HINT", None) and posting_guard.HTML_HINT.search(raw_text):
@@ -188,16 +224,18 @@ def evaluate_posting(
 
     # 2. Metadata extraction
     lines = [line.strip() for line in cleaned_text.splitlines() if line.strip()]
-    estimated_company = "Target Company"
-    estimated_role = "AI Systems Engineer"
-    for line in lines[:10]:
-        comp_m = re.search(r"(?:at|@|company:?)\s+([A-Za-z0-9\.\-\s]+)", line, re.I)
-        if comp_m and len(comp_m.group(1).strip()) > 1:
-            estimated_company = comp_m.group(1).strip()
-            break
-        role_m = re.search(r"((?:AI|ML|Machine Learning|Software|Backend|Platform|Systems)\s+(?:Engineer|Developer|Architect|Lead))", line, re.I)
-        if role_m:
-            estimated_role = role_m.group(1).strip()
+    if estimated_company == "Target Company":
+        for line in lines[:10]:
+            comp_m = re.search(r"(?:at|@|company:?)\s+([A-Za-z0-9\.\-\s]+)", line, re.I)
+            if comp_m and len(comp_m.group(1).strip()) > 1:
+                estimated_company = comp_m.group(1).strip()
+                break
+    if estimated_role == "AI Systems Engineer":
+        for line in lines[:10]:
+            role_m = re.search(r"((?:AI|ML|Machine Learning|Software|Backend|Platform|Systems)\s+(?:Engineer|Developer|Architect|Lead))", line, re.I)
+            if role_m:
+                estimated_role = role_m.group(1).strip()
+                break
 
     # 3. Location & Work Authorization Policy
     lower_text = cleaned_text.lower()
