@@ -225,6 +225,7 @@ class TestCareerOsMcpServer(unittest.TestCase):
         self.assertIn("career_os_record_submission", tool_names)
         self.assertIn("career_os_interview_prep", tool_names)
         self.assertIn("career_os_salary_lookup", tool_names)
+        self.assertIn("career_os_dashboard", tool_names)
 
         record_tool = next(t for t in tools if t["name"] == "career_os_record_submission")
         self.assertIn("user_confirmed", record_tool["inputSchema"]["required"])

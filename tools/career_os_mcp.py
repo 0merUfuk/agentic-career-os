@@ -201,6 +201,21 @@ TOOLS_REGISTRY: List[Dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "name": "career_os_dashboard",
+        "description": "Generate a self-contained, offline HTML application tracker dashboard with conversion funnel and Kanban status breakdown.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "open_browser": {
+                    "type": "boolean",
+                    "description": "Whether to attempt opening the generated dashboard in the default browser (default: false).",
+                    "default": False,
+                },
+            },
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -262,6 +277,20 @@ def handle_salary(args: Dict[str, Any]) -> str:
     return json.dumps(res, indent=2)
 
 
+def handle_dashboard(args: Dict[str, Any]) -> str:
+    import career_os_dashboard
+    out_file = career_os_dashboard.generate_html_dashboard()
+    open_browser = args.get("open_browser", False)
+    if open_browser:
+        import webbrowser
+        webbrowser.open(f"file://{out_file.resolve()}")
+    return json.dumps({
+        "status": "SUCCESS",
+        "dashboard_file": str(out_file.resolve()),
+        "message": f"Application dashboard generated successfully at {out_file.resolve()}. Open in your browser to inspect pipeline and funnel metrics.",
+    }, indent=2)
+
+
 HANDLERS: Dict[str, Callable[[Dict[str, Any]], str]] = {
     "career_os_status": handle_status,
     "career_os_evaluate_posting": handle_evaluate,
@@ -269,6 +298,7 @@ HANDLERS: Dict[str, Callable[[Dict[str, Any]], str]] = {
     "career_os_record_submission": handle_record,
     "career_os_interview_prep": handle_interview,
     "career_os_salary_lookup": handle_salary,
+    "career_os_dashboard": handle_dashboard,
 }
 
 
