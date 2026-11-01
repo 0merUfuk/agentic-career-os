@@ -1,10 +1,4 @@
----
-description: Audit and evaluate a job posting for fit and security.
-arguments:
-  - name: posting
-    description: URL or pasted text of the job posting
-    required: true
----
+# /career-eval - Audit and Evaluate a Job Posting for Fit and Security
 
 Please audit the following job posting using the `career_os_evaluate_posting` MCP tool (or `python3 tools/career_os_cli.py eval "$ARGUMENTS"`):
 

@@ -1,13 +1,4 @@
----
-description: Generate a tailored 2-page CV and 1-page cover letter into documents/applications/<company>_<role>/.
-arguments:
-  - name: company
-    description: Employer company name
-    required: true
-  - name: role
-    description: Target job title / role
-    required: true
----
+# /career-draft - Draft Tailored Application Package to Isolated Folder
 
 Please prepare an application package using the `career_os_draft_application` MCP tool:
 - Company: "$ARGUMENTS"

@@ -1,13 +1,4 @@
----
-description: Generate interview preparation battle cards, anticipated questions, and candidate STAR stories.
-arguments:
-  - name: company
-    description: Employer company name
-    required: true
-  - name: role
-    description: Job title / role (optional)
-    required: false
----
+# /career-interview - Generate Interview Preparation Brief and Battle Cards
 
 Generate an interview preparation brief using the `career_os_interview_prep` MCP tool for:
 - Company: "$ARGUMENTS"

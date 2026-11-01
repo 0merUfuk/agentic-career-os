@@ -1,6 +1,4 @@
----
-description: Inspect Career OS tracker status, application counts, and authoritative profile paths.
----
+# /career-status - Inspect Career OS Workspace and Pipeline Status
 
 Please execute the `career_os_status` MCP tool (or run `python3 tools/career_os_cli.py status --json`).
 Summarize the current state of the job search pipeline:
