@@ -55,6 +55,7 @@ class TestInitWizard(unittest.TestCase):
                 "--email",
                 "test@example.com",
                 "--skip-desktop",
+                "--skip-global",
                 "--skip-tests",
             ],
             capture_output=True,
@@ -64,6 +65,12 @@ class TestInitWizard(unittest.TestCase):
         self.assertIn("Setup Complete!", res.stdout)
         self.assertTrue((REPO_ROOT / ".mcp.json").exists())
         self.assertTrue((REPO_ROOT / ".cursor" / "mcp.json").exists())
+
+    def test_global_claude_commands_dry_run(self):
+        """Verify global command installer executes dry run cleanly."""
+        import init
+        init.configure_global_claude_commands(dry_run=True)
+        init.configure_global_antigravity_skill(dry_run=True)
 
 
 if __name__ == "__main__":

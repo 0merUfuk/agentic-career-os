@@ -253,6 +253,65 @@ def configure_antigravity(python_exec: str, dry_run: bool = False) -> None:
         print(f"  ⚠ Could not write Antigravity config ({exc}).")
 
 
+def configure_global_claude_commands(dry_run: bool = False) -> None:
+    """Install slash commands into user's global ~/.claude/commands/."""
+    user_claude = Path.home() / ".claude"
+    commands_root = user_claude / "commands"
+    career_dir = commands_root / "career"
+
+    src_commands = REPO_ROOT / "commands"
+    if not src_commands.exists():
+        src_commands = REPO_ROOT / ".claude" / "commands"
+
+    if not src_commands.exists():
+        return
+
+    try:
+        if not dry_run:
+            commands_root.mkdir(parents=True, exist_ok=True)
+            career_dir.mkdir(parents=True, exist_ok=True)
+            for cmd_file in src_commands.glob("*.md"):
+                # Flat copy (e.g. career-status.md)
+                flat_name = cmd_file.name if cmd_file.name.startswith("career-") else f"career-{cmd_file.name}"
+                shutil.copy2(cmd_file, commands_root / flat_name)
+                # Namespaced copy for /career:*
+                clean_name = cmd_file.name.replace("career-", "")
+                shutil.copy2(cmd_file, career_dir / clean_name)
+            print(f"  ✓ Installed global Claude Code slash commands into {commands_root}")
+        else:
+            print(f"  ℹ Would install global Claude Code commands into {commands_root}")
+    except Exception as exc:
+        print(f"  ⚠ Could not write global Claude commands ({exc}).")
+
+
+def configure_global_antigravity_skill(dry_run: bool = False) -> None:
+    """Install global Antigravity skill into ~/.gemini/config/skills/career-os/."""
+    gemini_dir = Path.home() / ".gemini"
+    if not gemini_dir.exists():
+        return
+
+    skill_dir = gemini_dir / "config" / "skills" / "career-os"
+    try:
+        if not dry_run:
+            skill_dir.mkdir(parents=True, exist_ok=True)
+            skill_md = skill_dir / "SKILL.md"
+            skill_content = """---
+name: career-os
+description: Autonomous job search intelligence, posting evaluation, application drafting, and interview preparation engine.
+---
+
+# Career OS Skill
+
+Operates the autonomous job search intelligence and ATS application engine via MCP tools.
+"""
+            skill_md.write_text(skill_content, encoding="utf-8")
+            print(f"  ✓ Registered global Antigravity skill in {skill_dir}")
+        else:
+            print(f"  ℹ Would register Antigravity skill in {skill_dir}")
+    except Exception as exc:
+        print(f"  ⚠ Could not write Antigravity skill ({exc}).")
+
+
 def run_self_tests() -> bool:
     """Execute the unittest discovery suite to ensure everything passes."""
     if os.getenv("_CAREER_OS_INIT_TESTING") or "unittest" in sys.modules:
@@ -286,6 +345,7 @@ def main() -> int:
         help="Candidate core positioning statement",
     )
     parser.add_argument("--skip-desktop", action="store_true", help="Skip Claude Desktop auto-configuration")
+    parser.add_argument("--skip-global", action="store_true", help="Skip installing slash commands globally")
     parser.add_argument("--skip-tests", action="store_true", help="Skip running test suite")
     args = parser.parse_args()
 
@@ -304,6 +364,7 @@ def main() -> int:
         role_focus = args.role_focus
         thesis = args.thesis
         setup_desktop = not args.skip_desktop
+        setup_global = not args.skip_global
     else:
         # Try to infer git user name
         default_name = "Candidate"
@@ -331,6 +392,7 @@ def main() -> int:
         print("Step 2 of 3: AI Assistant Integration")
         print("-" * 68)
         setup_desktop = prompt_yes_no("Configure Claude Desktop MCP connector?", default=True)
+        setup_global = prompt_yes_no("Install slash commands globally (~/.claude/commands/)?", default=True)
         print()
 
     print("Configuring environment...")
@@ -340,6 +402,10 @@ def main() -> int:
 
     if setup_desktop:
         configure_claude_desktop(python_exec)
+
+    if setup_global:
+        configure_global_claude_commands()
+        configure_global_antigravity_skill()
 
     # If Antigravity directory exists, register it too
     if Path.home().joinpath(".gemini").exists():
